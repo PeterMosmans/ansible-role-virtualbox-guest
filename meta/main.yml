@@ -5,12 +5,7 @@ galaxy_info:
   company: Go Forward
   license: GPLv3
   min_ansible_version: 1.2
-  #
-  # Below are all platforms currently available. Just uncomment
-  # the ones that apply to your role. If you don't see your 
-  # platform on this list, let us know and we'll get it added!
-  #
-  #platforms:
+  platforms:
   #- name: EL
   #  versions:
   #  - all
@@ -68,41 +63,28 @@ galaxy_info:
   #  - 9.1
   #  - 9.1
   #  - 9.2
-   - name: Ubuntu
-     versions:
+    - name: Ubuntu
+      versions:
   #  - all
   #  - lucid
   #  - maverick
   #  - natty
   #  - oneiric
-     - precise
-     - quantal
-     - raring
-     - saucy
-     - trusty
-     - utopic
-     - vivid
-  #- name: SLES
-  #  versions:
-  #  - all
-  #  - 10SP3
-  #  - 10SP4
-  #  - 11
-  #  - 11SP1
-  #  - 11SP2
-  #  - 11SP3
-  #- name: GenericLinux
-  #  versions:
-  #  - all
-  #  - any
-   - name: Debian
-     versions:
+        - precise
+        - quantal
+        - raring
+        - saucy
+        - trusty
+        - utopic
+        - vivid
+    - name: Debian
+      versions:
   #  - all
   #  - etch
-     - jessie
-     - lenny
-     - squeeze
-     - wheezy
+        - jessie
+        - lenny
+        - squeeze
+        - wheezy
   #
   # Below are all categories currently available. Just as with
   # the platforms above, uncomment those that apply to your role.
@@ -116,11 +98,11 @@ galaxy_info:
   #- database
   #- database:nosql
   #- database:sql
-   - development
+    - development
   #- monitoring
   #- networking
-   - packaging
-   - system
+    - packaging
+    - system
   #- web
 dependencies: []
 
