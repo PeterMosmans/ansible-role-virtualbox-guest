@@ -1,0 +1,110 @@
+---
+# tasks file for virtualbox-guest
+
+- name: Determine if (the requested version of) vboxguestadditions is installed
+  shell: modinfo vboxguest 2>/dev/null|awk '/^version/{print $2}'
+  register: vbox_guest_version
+  changed_when: vbox_guest_version.stdout != "{{ virtualbox_version }}"
+  ignore_errors: yes
+
+- name: Check if the ISO file is present on the host
+  stat: path=/root/VBoxGuestAdditions.iso
+  register: file_path
+  ignore_errors: yes
+  when: (vbox_guest_version.stdout != "{{ virtualbox_version }}")
+    
+- name: Check if the CD is present on the host
+  stat: path=/dev/sr0
+  register: CD_path
+  ignore_errors: yes
+  when: (vbox_guest_version.stdout != "{{ virtualbox_version }}" ) and (not file_path.stat.exists)
+
+- name: Check if CD or ISO file is present on the host
+  fail: msg="Could not find necessary CD or ISO file on the host"
+  when: (vbox_guest_version.stdout != "{{ virtualbox_version }}" ) and (not file_path.stat.exists) and (not CD_path.stat.exists)
+  
+- name: Use correct ISO path (file or CD)
+  set_fact: ISO_path="{{ file_path.stat.path if file_path.stat.exists else CD_path.stat.path }}"
+  when: (vbox_guest_version.stdout != "{{ virtualbox_version }}")
+
+- name: Check if VBoxGuest additions ISO is mounted
+  shell: mount -l 2>/dev/null|awk '/VBOXADDITIONS/{print $3}'
+  register: mount_path
+  changed_when: mount_path is defined and mount_path.stdout != ""
+
+- name: Mount VBoxGuestAdditions
+  mount:
+    name=/media/cdrom
+    src={{ ISO_path }}
+    fstype=iso9660
+    opts=noauto
+    state=mounted
+  register: mounted_ISO
+  when: ((vbox_guest_version.stdout != "{{ virtualbox_version }}") and ((mount_path is defined) and ("{{ mount_path.stdout }}" == "")))
+
+- name: Check if VBoxGuest additions ISO is mounted
+  shell: mount -l 2>/dev/null|awk '/VBOXADDITIONS/{print $3}'
+  register: mount_path
+  when: (vbox_guest_version.stdout != "{{ virtualbox_version }}")
+
+- name: Find out kernel version
+  shell: uname -r
+  register: kernel
+  changed_when: kernel.stdout == ""
+
+- name: Install necessary packages for compiling
+  apt:
+    name={{ item }}
+    update_cache=yes
+    cache_valid_time=86400
+    install-recommends=no
+    state=present
+  with_items:
+    - bzip2
+    - dkms
+    - gcc
+    - make
+    - linux-headers-{{ kernel.stdout }}
+  when: (vbox_guest_version.stdout != "{{ virtualbox_version }}")
+
+- name: Build and install VBoxGuestAdditions from file
+  shell: /media/cdrom/VBoxLinuxAdditions.run --nox11 1>/dev/null
+  when: (vbox_guest_version.stdout != "{{ virtualbox_version }}")
+  ignore_errors: yes
+
+- name: Unmount VBoxGuestAdditions
+  mount:
+    name={{ mount_path.stdout }}
+    src={{ ISO_path }}
+    fstype=iso9660
+    state=unmounted
+  when: (vbox_guest_version.stdout != "{{ virtualbox_version }}") and mounted_ISO | changed
+
+- name: Remove packages for compiling
+  apt:
+    name={{ item }}
+    state=absent
+    update_cache=yes
+    cache_valid_time=86400
+  with_items:
+    - bzip2
+    - dkms
+    - gcc
+    - linux-headers-{{ kernel.stdout }}
+    - make
+
+- name: Remove build logfiles, artefacts and ISO files
+  file: name={{ item}} follow=yes state=absent
+  with_items:
+    - /root/VBoxGuestAdditions.iso
+    - /usr/src/vboxguest-"{{ virtualbox_version }}"
+    - /var/log/vboxadd-install.log
+    - /var/log/VBoxGuestAdditions.log
+
+- name: Remove cdrom fstab entry
+  lineinfile: >
+    dest=/etc/fstab
+    regexp='^{{ ISO_path }}'
+    line='{{ ISO_path }}	{{ mount_path.stdout }}	iso9660	noauto	0	0'
+    state=absent
+  when: (vbox_guest_version.stdout != "{{ virtualbox_version }}") and mounted_ISO | changed
