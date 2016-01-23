@@ -52,6 +52,11 @@
   register: kernel
   changed_when: kernel.stdout == ""
 
+- name: Find out architecture-independent kernel name
+  shell: uname -r | sed 's/-[az].*$//'
+  register: kernel_common
+  changed_when: kernel_common.stdout == ""
+
 - name: Install necessary packages for compiling
   apt:
     name={{ item }}
@@ -91,12 +96,15 @@
     - dkms
     - gcc
     - linux-headers-{{ kernel.stdout }}
+    - linux-headers-{{ kernel_common.stdout }}-common
     - make
 
 - name: Remove build logfiles, artefacts and ISO files
   file: name={{ item}} follow=yes state=absent
   with_items:
     - /root/VBoxGuestAdditions.iso
+    - /opt/VBoxGuestAdditions-"{{ virtualbox_version }}"/src
+    - /var/lib/dkms/vboxguest
     - /usr/src/vboxguest-"{{ virtualbox_version }}"
     - /var/log/vboxadd-install.log
     - /var/log/VBoxGuestAdditions.log
