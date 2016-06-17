@@ -72,9 +72,14 @@
     - linux-headers-{{ kernel.stdout }}
   when: (vbox_guest_version.stdout != "{{ virtualbox_version }}")
 
+- name: Build and install x11 VBoxGuestAdditions from file
+  shell: /bin/bash /media/cdrom/VBoxLinuxAdditions.run
+  when: (vbox_guest_version.stdout != "{{ virtualbox_version }}") and ((virtualbox_x11 is defined) and virtualbox_x11)
+  ignore_errors: yes
+
 - name: Build and install VBoxGuestAdditions from file
-  shell: /media/cdrom/VBoxLinuxAdditions.run --nox11 1>/dev/null
-  when: (vbox_guest_version.stdout != "{{ virtualbox_version }}")
+  shell: /bin/bash /media/cdrom/VBoxLinuxAdditions.run --nox11
+  when: (vbox_guest_version.stdout != "{{ virtualbox_version }}") and ((virtualbox_x11 is undefined) or (not virtualbox_x11))
   ignore_errors: yes
 
 - name: Unmount VBoxGuestAdditions
@@ -98,6 +103,7 @@
     - linux-headers-{{ kernel.stdout }}
     - linux-headers-{{ kernel_common.stdout }}-common
     - make
+  when: virtualbox_keep is undefined or not virtualbox_keep
 
 - name: Remove build logfiles, artefacts and ISO files
   file: name={{ item}} follow=yes state=absent
