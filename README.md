@@ -26,7 +26,7 @@ Available variables are listed below, along with default values
 
 **virtualbox_version**: The requested version of VirtualBox. If the current version does not match that version, it will try to (re)install VirtualBox guest additions. The defaults can be found in ```defaults/main.yml```.
 ```
-virtualbox_version: 5.0.14
+virtualbox_version: 5.0.22
 ```
 
 **virtualbox_x11**: A boolean stating whether VirtualBox guest additions will be compiled with x11 support. If not specified, defaults to no.
