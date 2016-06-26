@@ -109,9 +109,9 @@
   file: name={{ item}} follow=yes state=absent
   with_items:
     - /root/VBoxGuestAdditions.iso
-    - /opt/VBoxGuestAdditions-"{{ virtualbox_version }}"/src
+    - "/opt/VBoxGuestAdditions-{{ virtualbox_version }}/src"
     - /var/lib/dkms/vboxguest
-    - /usr/src/vboxguest-"{{ virtualbox_version }}"
+    - "/usr/src/vboxguest-{{ virtualbox_version }}"
     - /var/log/vboxadd-install.log
     - /var/log/VBoxGuestAdditions.log
 
