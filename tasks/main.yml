@@ -1,6 +1,16 @@
 ---
 # tasks file for virtualbox-guest
 
+- block:
+  - name: If virtualbox_version is set to auto then determine the host version
+    local_action: shell vboxmanage --version | awk -F r '{print $1}'
+    register: host_vbox_version
+
+  - name: Override virtualbox_version if defaults set to auto
+    set_fact: virtualbox_version="{{ host_vbox_version.stdout }}"
+
+  when: virtualbox_version == "auto"
+
 - name: Determine if (the requested version of) vboxguestadditions is installed
   shell: modinfo vboxguest 2>/dev/null|awk '/^version/{print $2}'
   register: vbox_guest_version
