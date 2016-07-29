@@ -20,9 +20,19 @@
   when: (vbox_guest_version.stdout != "{{ virtualbox_version }}" ) and (not file_path.stat.exists)
 
 - name: Check if CD or ISO file is present on the host
-  fail: msg="Could not find necessary CD or ISO file on the host"
+  debug: msg="Could not find necessary CD or ISO file on the host. Attempting to download..."
   when: (vbox_guest_version.stdout != "{{ virtualbox_version }}" ) and (not file_path.stat.exists) and (not CD_path.stat.exists)
-  
+
+- name: Download ISO file when the requested version is not present on the host
+  get_url: url=http://download.virtualbox.org/virtualbox/{{ virtualbox_version }}/VBoxGuestAdditions_{{ virtualbox_version }}.iso dest=/root/VBoxGuestAdditions.iso
+  when: (vbox_guest_version.stdout != "{{ virtualbox_version }}" ) and (not file_path.stat.exists) and (not CD_path.stat.exists)
+
+- name: Re-check if the ISO file is present on the host
+  stat: path=/root/VBoxGuestAdditions.iso
+  register: file_path
+  ignore_errors: yes
+  when: (vbox_guest_version.stdout != "{{ virtualbox_version }}")
+
 - name: Use correct ISO path (file or CD)
   set_fact: ISO_path="{{ file_path.stat.path if file_path.stat.exists else CD_path.stat.path }}"
   when: (vbox_guest_version.stdout != "{{ virtualbox_version }}")
