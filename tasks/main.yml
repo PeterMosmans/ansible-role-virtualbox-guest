@@ -6,6 +6,10 @@
     local_action: shell vboxmanage --version | awk -F r '{print $1}'
     register: host_vbox_version
 
+  - name: Check if virtualbox_version could be determined
+    fail: msg="Could not determine virtualbox_version - please specify this variable"
+    when: host_vbox_version.stdout == ""
+
   - name: Override virtualbox_version if defaults set to auto
     set_fact: virtualbox_version="{{ host_vbox_version.stdout }}"
 
