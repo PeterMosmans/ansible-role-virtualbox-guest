@@ -49,7 +49,7 @@ Example Playbook
   roles:
     - role: PeterMosmans.virtualbox-guest
 ```
-This example will install VirtualBox guest additions.
+This example will install VirtualBox guest additions, and does not remove any of the build prerequisites that could have been installed by this role.
 
 
 License
