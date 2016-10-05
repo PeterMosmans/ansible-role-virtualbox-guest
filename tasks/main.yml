@@ -137,13 +137,14 @@
 - name: Remove build logfiles, artefacts and ISO files
   file: name={{ item}} follow=yes state=absent
   with_items:
-    - /root/VBoxGuestAdditions.iso
     - "/opt/VBoxGuestAdditions-{{ virtualbox_version }}/src"
-    - /var/lib/dkms/vboxguest
+    - /root/VBoxGuestAdditions.iso
     - "/usr/src/vboxguest-{{ virtualbox_version }}"
+    - /var/lib/dkms/vboxguest
     - /var/log/vboxadd-install.log
     - /var/log/vboxadd-install-x11.log
     - /var/log/VBoxGuestAdditions.log
+    - /var/log/VBoxGuestAdditions-uninstall.log
 
 - name: Remove cdrom fstab entry
   lineinfile: >
