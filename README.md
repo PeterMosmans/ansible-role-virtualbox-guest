@@ -9,7 +9,7 @@ This role installs and configures the requested VirtualBox guest additions. Expe
 Requirements
 ------------
 
-None, all prerequisites will be installed (and can be removed afterwards). IPlease note that the installer does not check (yet) whether packages were already installed, so it might remove the following previously installed packages, if you don't set the **virtualbox_keep** variable to true:
+None, all prerequisites will be installed (and can be removed afterwards). If you don't set the **virtualbox_keep** variable to true, all packages that were installed for building will be removed (the installed packages will be exactly the same as before executing the role).
   - bzip2
   - dkms
   - gcc

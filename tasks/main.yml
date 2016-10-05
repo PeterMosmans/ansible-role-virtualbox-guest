@@ -86,6 +86,10 @@
   register: kernel_common
   changed_when: kernel_common.stdout == ""
 
+- name: Save the current list of packages
+  shell: aptitude search '~i!~M' > /tmp/before.txt
+  when: (vbox_guest_version.stdout != "{{ virtualbox_version }}" ) and (virtualbox_keep is undefined or not virtualbox_keep)
+
 - name: Install necessary packages for compiling
   apt:
     name={{ item }}
@@ -119,26 +123,32 @@
     state=unmounted
   when: (vbox_guest_version.stdout != "{{ virtualbox_version }}") and mounted_ISO | changed
 
-- name: Remove packages for compiling
+- name: Check which packages were installed
+  shell: aptitude search '~i!~M' > /tmp/after.txt
+  when: (vbox_guest_version.stdout != "{{ virtualbox_version }}" ) and (virtualbox_keep is undefined or not virtualbox_keep)
+
+- name: Create a list of installed packages
+  shell: diff /tmp/before.txt /tmp/after.txt|awk '/>/{print $3}'
+  register: installed
+  when: (vbox_guest_version.stdout != "{{ virtualbox_version }}" ) and (virtualbox_keep is undefined or not virtualbox_keep)
+
+- name: Remove installed packages for compiling
   apt:
     name={{ item }}
     state=absent
     update_cache=yes
     cache_valid_time=86400
-  with_items:
-    - bzip2
-    - dkms
-    - gcc
-    - linux-headers-{{ kernel.stdout }}
-    - linux-headers-{{ kernel_common.stdout }}-common
-    - make
-  when: virtualbox_keep is undefined or not virtualbox_keep
+  with_items: "{{ installed.stdout_lines }}"
+  when: (vbox_guest_version.stdout != "{{ virtualbox_version }}" ) and (virtualbox_keep is undefined or not virtualbox_keep)
 
 - name: Remove build logfiles, artefacts and ISO files
   file: name={{ item}} follow=yes state=absent
   with_items:
     - "/opt/VBoxGuestAdditions-{{ virtualbox_version }}/src"
     - /root/VBoxGuestAdditions.iso
+    - /tmp/before.txt
+    - /tmp/installed.txt
+    - /tmp/after.txt
     - "/usr/src/vboxguest-{{ virtualbox_version }}"
     - /var/lib/dkms/vboxguest
     - /var/log/vboxadd-install.log
