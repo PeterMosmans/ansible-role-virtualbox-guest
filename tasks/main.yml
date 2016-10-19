@@ -164,4 +164,10 @@
       state=absent
     when: mounted_ISO | changed
 
+  - name: Install some dependencies for Virtualbox Guest Additions (vbox-greeter)
+    apt: name="{{ item }}"
+    with_items:
+      - "libfltk1.3"
+      - "libfltk-images1.3"
+
   when: (vbox_guest_version.stdout != "{{ virtualbox_version }}")
