@@ -4,7 +4,7 @@
   - name: remove os packages version of virtualbox guest additions
     apt: name="{{ item }}" state="absent"
     with_items: "{{ virtualbox_os_packages }}"
-    when: virtualbox_remove_os_packages is defined and virtualbox_remove_os_packages
+  when: virtualbox_remove_os_packages is defined and virtualbox_remove_os_packages
 
 - block:
   - name: If virtualbox_version is set to auto then determine the host version
@@ -17,7 +17,6 @@
 
   - name: Override virtualbox_version if defaults set to auto
     set_fact: virtualbox_version="{{ host_vbox_version.stdout }}"
-
   when: virtualbox_version == "auto"
 
 - name: Determine if (the requested version of) vboxguestadditions is installed
@@ -89,7 +88,7 @@
     changed_when: kernel_common.stdout == ""
 
   - name: Save the current list of packages
-    shell: aptitude search '~i!~M' > /tmp/before.txt
+    shell: dpkg-query -l > /tmp/before.txt
     when: virtualbox_keep is undefined or not virtualbox_keep
 
   - name: Install necessary packages for compiling
@@ -107,7 +106,7 @@
       - linux-headers-{{ kernel.stdout }}
 
   - name: Check which packages were installed
-    shell: aptitude search '~i!~M' > /tmp/after.txt
+    shell: dpkg-query -l > /tmp/after.txt
     when: virtualbox_keep is undefined or not virtualbox_keep
 
   - name: Create a list of installed packages
@@ -163,5 +162,4 @@
       line='{{ ISO_path }}	{{ mount_path.stdout }}	iso9660	noauto	0	0'
       state=absent
     when: mounted_ISO | changed
-
   when: (vbox_guest_version.stdout != "{{ virtualbox_version }}")
