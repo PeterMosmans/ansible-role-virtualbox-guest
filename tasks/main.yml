@@ -2,7 +2,7 @@
 # tasks file for virtualbox-guest
 - block:
   - name: remove os packages version of virtualbox guest additions
-    apt: name="{{ item }}" state="absent"
+    apt: name="{{ item }}" state="absent" purge="yes"
     with_items: "{{ virtualbox_os_packages }}"
   when: virtualbox_remove_os_packages is defined and virtualbox_remove_os_packages
 
