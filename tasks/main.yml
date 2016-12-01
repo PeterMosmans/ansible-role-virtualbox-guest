@@ -103,7 +103,15 @@
       - dkms
       - gcc
       - make
-      - linux-headers-{{ kernel.stdout }}
+
+  - name: Install kernel headers
+    apt:
+      name=linux-headers-{{ kernel.stdout }}
+      update_cache=yes
+      cache_valid_time=86400
+      install-recommends=no
+      state=present
+    when: kernel is defined and kernel.stdout is defined
 
   - name: Check which packages were installed
     shell: dpkg-query -l > /tmp/after.txt
@@ -134,12 +142,11 @@
 
   - name: Remove installed packages for compiling
     apt:
-      name={{ item }}
+      name="{{ installed.stdout_lines }}"
       state=absent
       update_cache=yes
       cache_valid_time=86400
-    with_items: "{{ installed.stdout_lines }}"
-    when: virtualbox_keep is undefined or not virtualbox_keep
+    when: installed is defined and (virtualbox_keep is undefined or not virtualbox_keep)
 
   - name: Remove build logfiles, artefacts and ISO files
     file: name={{ item}} follow=yes state=absent
