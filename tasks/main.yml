@@ -95,7 +95,6 @@
     apt:
       name={{ item }}
       update_cache=yes
-      cache_valid_time=86400
       install-recommends=no
       state=present
     with_items:
@@ -146,6 +145,8 @@
       state=absent
       update_cache=yes
       cache_valid_time=86400
+      autoremove=yes
+      purge=yes
     when: installed is defined and (virtualbox_keep is undefined or not virtualbox_keep)
 
   - name: Remove build logfiles, artefacts and ISO files
