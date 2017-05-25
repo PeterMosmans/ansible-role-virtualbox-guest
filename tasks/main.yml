@@ -22,7 +22,7 @@
 - name: Determine if (the requested version of) vboxguestadditions is installed
   shell: modinfo vboxguest 2>/dev/null|awk '/^version/{print $2}'
   register: vbox_guest_version
-  changed_when: vbox_guest_version.stdout != "{{ virtualbox_version }}"
+  changed_when: vbox_guest_version.stdout != virtualbox_version
   ignore_errors: yes
 
 - block:
@@ -71,7 +71,7 @@
       opts=noauto
       state=mounted
     register: mounted_ISO
-    when: mount_path is defined and "{{ mount_path.stdout }}" == ""
+    when: mount_path is defined and mount_path.stdout == ""
 
   - name: Check if VBoxGuest additions ISO is mounted
     shell: mount -l 2>/dev/null|awk '/VBOXADDITIONS/{print $3}'
@@ -170,4 +170,4 @@
       line='{{ ISO_path }}	{{ mount_path.stdout }}	iso9660	noauto	0	0'
       state=absent
     when: mounted_ISO | changed
-  when: (vbox_guest_version.stdout != "{{ virtualbox_version }}")
+  when: (vbox_guest_version.stdout != virtualbox_version)
