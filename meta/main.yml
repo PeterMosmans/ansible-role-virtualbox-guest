@@ -63,32 +63,28 @@ galaxy_info:
   #  - 9.1
   #  - 9.1
   #  - 9.2
-    - name: Ubuntu
-      versions:
-  #  - all
+  - name: Ubuntu
+    versions:
+    - all
   #  - lucid
   #  - maverick
   #  - natty
   #  - oneiric
-        - precise
-        - quantal
-        - raring
-        - saucy
-        - trusty
-        - utopic
-        - vivid
-    - name: Debian
-      versions:
+    # - precise
+    # - quantal
+    # - raring
+    # - saucy
+    # - trusty
+    # - utopic
+    # - vivid
+  - name: Debian
+    versions:
   #  - all
   #  - etch
-        - jessie
-        - lenny
-        - squeeze
-        - wheezy
-  #
-  # Below are all categories currently available. Just as with
-  # the platforms above, uncomment those that apply to your role.
-  #
+    - jessie
+    - lenny
+    - squeeze
+    - wheezy
   galaxy_tags:
     - development
     - guest
@@ -96,5 +92,3 @@ galaxy_info:
     - system
     - virtualbox
 dependencies: []
-
-  
