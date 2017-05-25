@@ -27,7 +27,7 @@
 
 - block:
   - name: Check if the ISO file is present on the host
-    stat: path=/root/VBoxGuestAdditions.iso
+    stat: path="{{ virtualbox_iso }}"
     register: file_path
     ignore_errors: yes
 
