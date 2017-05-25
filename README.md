@@ -4,7 +4,7 @@ Ansible Role: virtualbox-guest
 Build status for this role: [![Build Status](https://travis-ci.org/PeterMosmans/ansible-role-virtualbox-guest.svg)](https://travis-ci.org/PeterMosmans/ansible-role-virtualbox-guest)
 
 
-This role installs and configures the requested VirtualBox guest additions. Expected is either a mounted ISO containing the VBoxGuestAdditions, or an ISO file in /root/VBoxGuestAdditions.iso.
+This role builds, installs and configures the requested VirtualBox guest additions. It searches the guest for a mounted ISO containing the VBoxGuestAdditions, or an ISO file. When not found, it can download the necessary ISO file directly from `download.virtualbox.org`.
 
 Requirements
 ------------
@@ -53,7 +53,7 @@ Example Playbook
   roles:
     - role: PeterMosmans.virtualbox-guest
 ```
-This example will install VirtualBox guest additions, and will not keep the build packages to the system if they needed to be installed for this role.
+This example will install VirtualBox guest additions, and will **not** keep the build packages to the system if they are needed to install them.
 
 
 License

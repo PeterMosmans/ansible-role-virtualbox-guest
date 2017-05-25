@@ -1,24 +1,24 @@
 ---
 galaxy_info:
   author: Peter Mosmans
-  description: Builds and installs VirtualBox guest additions
+  description: Builds and installs VirtualBox guest additions - either from ISO file or downloads the necessary files.
   company: Go Forward
   license: GPLv3
   min_ansible_version: 2.1
   platforms:
-  #- name: EL
-  #  versions:
-  #  - all
+  - name: EL
+    versions:
+    - all
   #  - 5
   #  - 6
   #  - 7
-  #- name: GenericUNIX
-  #  versions:
-  #  - all
-  #  - any
-  #- name: Fedora
-  #  versions:
-  #  - all
+  - name: GenericUNIX
+    versions:
+    - all
+   # - any
+  - name: Fedora
+    versions:
+    - all
   #  - 16
   #  - 17
   #  - 18
