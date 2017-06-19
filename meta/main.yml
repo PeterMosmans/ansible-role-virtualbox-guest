@@ -84,6 +84,7 @@ galaxy_info:
     - jessie
     - lenny
     - squeeze
+    - stretch
     - wheezy
   galaxy_tags:
     - development
