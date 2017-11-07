@@ -1,3 +1,9 @@
+Based on Peter Mosmans virtualbox-guest.
+Updated to work in CentOS env.
+Will add EPEL repo and enables it.  
+-Tin
+
+
 Ansible Role: virtualbox-guest
 =====================
 

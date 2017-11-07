@@ -2,13 +2,14 @@
 # tasks file for virtualbox-guest
 - block:
   - name: Remove os packages version of virtualbox guest additions
-    apt: name="{{ item }}" state="absent" purge="yes"
+    package: name="{{ item }}" state="absent" purge="yes"
     with_items: "{{ virtualbox_os_packages }}"
   when: virtualbox_remove_os_packages is defined and virtualbox_remove_os_packages
 
+
 - block:
   - name: If virtualbox_version is set to auto then determine the host version
-    local_action: shell vboxmanage --version | awk -F'[r_]' '{print $1}'
+    local_action: shell vboxmanage --version | awk -F'[r_]' '{print $1}' # Ubuntu return 4.3.36_Ubuntur105129, mac/centos return 5.1.26r117224
     register: host_vbox_version
 
   - name: Check if virtualbox_version could be determined
@@ -27,7 +28,8 @@
 
 - block:
   - name: Check if the ISO file is present on the host
-    stat: path="{{ virtualbox_iso }}"
+    stat: path="{{ virtualbox_iso }}"	
+    ##stat: path=/root/VBoxGuestAdditions.iso
     register: file_path
     ignore_errors: yes
 
@@ -43,6 +45,8 @@
 
   - name: Download ISO file when the requested version is not present on the host
     get_url: url=http://download.virtualbox.org/virtualbox/{{ virtualbox_version }}/VBoxGuestAdditions_{{ virtualbox_version }}.iso dest=/root/VBoxGuestAdditions.iso
+    ## tried to fetch     http://download.virtualbox.org/virtualbox/4.3.36_Ubuntu/VBoxGuestAdditions_4.3.36_Ubuntu.iso
+    ## but actual path is http://download.virtualbox.org/virtualbox/4.3.36/VBoxGuestAdditions_4.3.36.iso
     ignore_errors: yes
     when: not file_path.stat.exists and not CD_path.stat.exists
 
@@ -87,34 +91,67 @@
     register: kernel_common
     changed_when: kernel_common.stdout == ""
 
-  - name: Save the current list of packages
+  - name: Save the current list of packages for Debians
     shell: dpkg-query -l > /tmp/before.txt
-    when: virtualbox_keep is undefined or not virtualbox_keep
+    when: ansible_os_family == 'Debian' and ( virtualbox_keep is undefined or not virtualbox_keep )
+
+  - name: Save the current list of packages for CentOSes
+    shell: rpm -qa > /tmp/before.txt
+    when: ansible_os_family == 'RedHat' and ( virtualbox_keep is undefined or not virtualbox_keep )
+
+  - block: 
+    - name: Install EPEL repo.
+      yum:
+        name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm
+        state: latest #present
+    - name: Import EPEL GPG key.
+      rpm_key:
+        key: /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}
+        state: present
+    #- name: Install dkms via epel  
+    #  yum: enablerepo=epel name="dkms" state=present
+    #  Actually, epel will be enabled from above steps, thus platform independent way of installing dkms below will work.
+    when: ansible_os_family == 'RedHat' 
 
   - name: Install necessary packages for compiling
-    apt:
-      name={{ item }}
-      update_cache=yes
-      install-recommends=no
-      state=present
+    package:
+      name: "{{ item }}"
+      # update_cache=yes
+      # install-recommends=no
+      state: present
     with_items:
       - bzip2
       - dkms
       - gcc
       - make
 
-  - name: Install kernel headers
+  - name: Install kernel headers for Debians
     apt:
       name=linux-headers-{{ kernel.stdout }}
       update_cache=yes
       cache_valid_time=86400
       install-recommends=no
       state=present
-    when: kernel is defined and kernel.stdout is defined
+    when: kernel is defined and kernel.stdout is defined and ansible_os_family == 'Debian'
 
-  - name: Check which packages were installed
+  - name: Install latest kernel and headers for CentOSes
+    yum:
+      name: "{{ item }}"
+      state: latest # needed latest for dmks to find matching header 
+      update_cache: yes
+    with_items:
+      - kernel
+      - kernel-headers-{{ kernel.stdout }}
+      - kernel-devel
+    when: kernel is defined and ansible_os_family == 'RedHat' and kernel.stdout is defined 
+
+  - name: Check which packages were installed for Debians
     shell: dpkg-query -l > /tmp/after.txt
-    when: virtualbox_keep is undefined or not virtualbox_keep
+    when: ansible_os_family == 'Debian' and ( virtualbox_keep is undefined or not virtualbox_keep )
+
+  - name: Check which packages were installed for CentOSes
+    shell: rpm -qa > /tmp/after.txt
+    when: ansible_os_family == 'RedHat' and ( virtualbox_keep is undefined or not virtualbox_keep )
 
   - name: Create a list of installed packages
     shell: diff /tmp/before.txt /tmp/after.txt|awk '/>/{print $3}'
@@ -126,9 +163,18 @@
     when: virtualbox_x11 is defined and virtualbox_x11
     ignore_errors: yes
 
-  - name: Build and install VBoxGuestAdditions from file
+  - name: Build and install VBoxGuestAdditions from file for Debians
     shell: /bin/bash /media/cdrom/VBoxLinuxAdditions.run --nox11
-    when: virtualbox_x11 is undefined or not virtualbox_x11
+    when: ( virtualbox_x11 is undefined or not virtualbox_x11 ) and ansible_os_family == 'Debian' 
+    ignore_errors: yes
+
+    ## CentOS needed KERN_DIR set to find kernel lib... if Debian has it in same dir then can merge both build clause
+  - name: Build and install VBoxGuestAdditions from file for CentOSes
+    shell: /bin/bash  /media/cdrom/VBoxLinuxAdditions.run --nox11
+    ##shell: /bin/bash KERN_DIR=/usr/src/kernels/{{kernel.stdout }} /media/cdrom/VBoxLinuxAdditions.run --nox11
+    ## maybe cuz there was mismatch b/w uname -r and kernel-headers downloaded
+    ## above syntax give problem on backbox complain PATH don't exist.
+    when: ( virtualbox_x11 is undefined or not virtualbox_x11 ) and ansible_os_family == 'RedHat' 
     ignore_errors: yes
 
   - name: Unmount VBoxGuestAdditions
@@ -140,13 +186,13 @@
     when: mounted_ISO | changed
 
   - name: Remove installed packages for compiling
-    apt:
-      name="{{ installed.stdout_lines }}"
-      state=absent
-      update_cache=yes
-      cache_valid_time=86400
-      autoremove=yes
-      purge=yes
+    package:
+      name: "{{ installed.stdout_lines }}"
+      state: absent
+      #update_cache=yes
+      #cache_valid_time=86400
+      #autoremove=yes
+      #purge=yes
     when: installed is defined and (virtualbox_keep is undefined or not virtualbox_keep)
 
   - name: Remove build logfiles, artefacts and ISO files
