@@ -9,8 +9,7 @@
 
 - block:
   - name: If virtualbox_version is set to auto then determine the host version
-    local_action: shell vboxmanage --version | awk -F'[r_]' '{print $1}' # Ubuntu return 4.3.36_Ubuntur105129, mac/centos return 5.1.26r117224
-    register: host_vbox_version
+    local_action: shell vboxmanage --version | awk -F'[r_]' '{print $1}' 
 
   - name: Check if virtualbox_version could be determined
     fail: msg="Could not determine virtualbox_version - please specify this variable"
@@ -108,9 +107,6 @@
       rpm_key:
         key: /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}
         state: present
-    #- name: Install dkms via epel  
-    #  yum: enablerepo=epel name="dkms" state=present
-    #  Actually, epel will be enabled from above steps, thus platform independent way of installing dkms below will work.
     when: ansible_os_family == 'RedHat' 
 
   - name: Install necessary packages for compiling
@@ -168,12 +164,8 @@
     when: ( virtualbox_x11 is undefined or not virtualbox_x11 ) and ansible_os_family == 'Debian' 
     ignore_errors: yes
 
-    ## CentOS needed KERN_DIR set to find kernel lib... if Debian has it in same dir then can merge both build clause
   - name: Build and install VBoxGuestAdditions from file for CentOSes
     shell: /bin/bash  /media/cdrom/VBoxLinuxAdditions.run --nox11
-    ##shell: /bin/bash KERN_DIR=/usr/src/kernels/{{kernel.stdout }} /media/cdrom/VBoxLinuxAdditions.run --nox11
-    ## maybe cuz there was mismatch b/w uname -r and kernel-headers downloaded
-    ## above syntax give problem on backbox complain PATH don't exist.
     when: ( virtualbox_x11 is undefined or not virtualbox_x11 ) and ansible_os_family == 'RedHat' 
     ignore_errors: yes
 
