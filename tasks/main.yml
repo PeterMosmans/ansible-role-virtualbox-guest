@@ -27,7 +27,7 @@
 
 - block:
   - name: Check if the ISO file is present on the host
-    stat: path="{{ virtualbox_iso }}"	
+    stat: path="{{ virtualbox_iso }}"
     ##stat: path=/root/VBoxGuestAdditions.iso
     register: file_path
     ignore_errors: yes
@@ -77,7 +77,7 @@
     when: mount_path is defined and mount_path.stdout == ""
 
   - name: Check if VBoxGuest additions ISO is mounted
-    shell: mount -l 2>/dev/null|awk '/VBOXADDITIONS/{print $3}'
+    shell: mount -l 2>/dev/null|awk 'tolower($0) ~ /vbox.*additions/{print $3}'
     register: mount_path
 
   - name: Find out kernel version
