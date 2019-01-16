@@ -6,7 +6,6 @@
     with_items: "{{ virtualbox_os_packages }}"
   when: virtualbox_remove_os_packages is defined and virtualbox_remove_os_packages
 
-
 - block:
   - name: If virtualbox_version is set to auto then determine the host version
     local_action: shell VBoxManage --version | awk -F'[r_]' '{print $1}'
@@ -46,8 +45,6 @@
 
   - name: Download ISO file when the requested version is not present on the host
     get_url: url=http://download.virtualbox.org/virtualbox/{{ virtualbox_version }}/VBoxGuestAdditions_{{ virtualbox_version }}.iso dest=/root/VBoxGuestAdditions.iso
-    ## tried to fetch     http://download.virtualbox.org/virtualbox/4.3.36_Ubuntu/VBoxGuestAdditions_4.3.36_Ubuntu.iso
-    ## but actual path is http://download.virtualbox.org/virtualbox/4.3.36/VBoxGuestAdditions_4.3.36.iso
     ignore_errors: yes
     when: not file_path.stat.exists and not CD_path.stat.exists
 
@@ -134,13 +131,9 @@
 
   - name: Install latest kernel and headers for CentOSes
     yum:
-      name: "{{ item }}"
+      name: ['kernel', 'kernel-headers-{{ kernel.stdout }}', 'kernel-devel']
       state: latest # needed latest for dmks to find matching header 
       update_cache: yes
-    with_items:
-      - kernel
-      - kernel-headers-{{ kernel.stdout }}
-      - kernel-devel
     when: kernel is defined and ansible_os_family == 'RedHat' and kernel.stdout is defined 
 
   - name: Check which packages were installed for Debians
@@ -177,7 +170,7 @@
       src={{ ISO_path }}
       fstype=iso9660
       state=unmounted
-    when: mounted_ISO | changed
+    when: mounted_ISO is changed
 
   - name: Remove installed packages for compiling
     package:
@@ -209,5 +202,5 @@
       regexp='^{{ ISO_path }}'
       line='{{ ISO_path }}	{{ mount_path.stdout }}	iso9660	noauto	0	0'
       state=absent
-    when: mounted_ISO | changed
+    when: mounted_ISO is changed
   when: (vbox_guest_version.stdout != virtualbox_version)
