@@ -182,7 +182,7 @@
       #purge=yes
     when: installed is defined and (virtualbox_keep is undefined or not virtualbox_keep)
 
-  - name: Remove build logfiles, artefacts and ISO files
+  - name: Remove build logfiles, artefacts, the source and the ISO file
     file: name={{ item}} follow=yes state=absent
     with_items:
       - "/opt/VBoxGuestAdditions-{{ virtualbox_version }}/src"
@@ -193,6 +193,7 @@
       - /var/lib/dkms/vboxguest
       - /var/log/vboxadd-install.log
       - /var/log/vboxadd-install-x11.log
+      - /var/log/vboxadd-setup.log
       - /var/log/VBoxGuestAdditions.log
       - /var/log/VBoxGuestAdditions-uninstall.log
 
