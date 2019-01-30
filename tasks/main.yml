@@ -8,7 +8,7 @@
 
 - block:
   - name: If virtualbox_version is set to auto then determine the host version
-    local_action: shell VBoxManage --version | awk -F'[r_]' '{print $1}'
+    local_action: "shell VBoxManage --version | awk -F'[r_]' '{print $1}'"
     register: host_vbox_version
     become: no
 
@@ -87,7 +87,7 @@
     changed_when: kernel.stdout == ""
 
   - name: Find out architecture-independent kernel name
-    shell: uname -r | sed 's/-[az].*$//'
+    shell: uname -r | sed 's/-[a-z].*$//'
     register: kernel_common
     changed_when: kernel_common.stdout == ""
 
