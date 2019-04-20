@@ -112,15 +112,10 @@
 
   - name: Install necessary packages for compiling
     package:
-      name: "{{ item }}"
+      name: ['bzip2', 'dkms', 'gcc', 'make']
       # update_cache=yes
       # install-recommends=no
       state: present
-    with_items:
-      - bzip2
-      - dkms
-      - gcc
-      - make
 
   - name: Install kernel headers for Debians
     apt:
@@ -185,7 +180,7 @@
     when: installed is defined and (virtualbox_keep is undefined or not virtualbox_keep)
 
   - name: Remove build logfiles, artefacts, the source and the ISO file
-    file: name={{ item}} follow=yes state=absent
+    file: name={{ item }} follow=yes state=absent
     with_items:
       - "/opt/VBoxGuestAdditions-{{ virtualbox_version }}/src"
       - /root/VBoxGuestAdditions.iso
