@@ -132,6 +132,7 @@
       name: ['kernel', 'kernel-headers-{{ kernel.stdout }}', 'kernel-devel']
       state: latest # needed latest for dmks to find matching header
       update_cache: yes
+      warn: no
     when: kernel is defined and ansible_os_family == 'RedHat' and kernel.stdout is defined
 
   - name: Check which packages were installed for Debians
