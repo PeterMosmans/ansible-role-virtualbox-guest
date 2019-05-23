@@ -146,17 +146,17 @@
     when: virtualbox_keep is undefined or not virtualbox_keep
 
   - name: Build and install x11 VBoxGuestAdditions from file
-    shell: /bin/bash /media/cdrom/VBoxLinuxAdditions.run
+    shell: /media/cdrom/VBoxLinuxAdditions.run
     when: virtualbox_x11 is defined and virtualbox_x11
     ignore_errors: yes
 
   - name: Build and install VBoxGuestAdditions from file for Debians
-    shell: /bin/bash /media/cdrom/VBoxLinuxAdditions.run --nox11
+    shell: /media/cdrom/VBoxLinuxAdditions.run --nox11
     when: ( virtualbox_x11 is undefined or not virtualbox_x11 ) and ansible_os_family == 'Debian'
     ignore_errors: yes
 
   - name: Build and install VBoxGuestAdditions from file for CentOSes
-    shell: /bin/bash  /media/cdrom/VBoxLinuxAdditions.run --nox11
+    shell: /media/cdrom/VBoxLinuxAdditions.run --nox11
     when: ( virtualbox_x11 is undefined or not virtualbox_x11 ) and ansible_os_family == 'RedHat'
     ignore_errors: yes
 
