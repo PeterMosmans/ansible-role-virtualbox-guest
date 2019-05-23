@@ -13,7 +13,7 @@
 
   - name: Check if virtualbox_version could be determined
     fail: msg="Could not determine virtualbox_version - please specify this variable"
-    when: host_vbox_version.stdout == ""
+    when: not host_vbox_version.stdout
 
   - name: Override virtualbox_version if defaults set to auto
     set_fact: virtualbox_version="{{ host_vbox_version.stdout }}"
@@ -64,7 +64,7 @@
     args:
       warn: False
     register: mount_path
-    changed_when: mount_path is defined and mount_path.stdout != ""
+    changed_when: mount_path is defined and not mount_path.stdout
 
   - name: Mount VBoxGuestAdditions
     mount:
@@ -74,7 +74,7 @@
       opts=noauto
       state=mounted
     register: mounted_ISO
-    when: mount_path is defined and mount_path.stdout == ""
+    when: mount_path is defined and not mount_path.stdout
 
   - name: Check if VBoxGuest additions ISO is mounted
     shell: mount -l 2>/dev/null|awk 'tolower($0) ~ /vbox.*additions/{print $3}'
@@ -83,12 +83,12 @@
   - name: Find out kernel version
     shell: uname -r
     register: kernel
-    changed_when: kernel.stdout == ""
+    changed_when: not kernel.stdout
 
   - name: Find out architecture-independent kernel name
     shell: uname -r | sed 's/-[a-z].*$//'
     register: kernel_common
-    changed_when: kernel_common.stdout == ""
+    changed_when: not kernel_common.stdout
 
   - name: Save the current list of packages for Debians
     shell: dpkg-query -l > /tmp/before.txt
