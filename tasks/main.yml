@@ -7,7 +7,8 @@
 
 - block:
   - name: If virtualbox_version is set to auto then determine the host version
-    local_action: "shell VBoxManage --version | awk -F'[r_]' '{print $1}'"
+    shell: "VBoxManage --version | awk -F'[r_]' '{print $1}'"
+    delegate_to: localhost
     register: host_vbox_version
     become: no
 
