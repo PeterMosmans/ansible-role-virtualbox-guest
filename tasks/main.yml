@@ -43,7 +43,9 @@
     when: not file_path.stat.exists and not CD_path.stat.exists
 
   - name: Download ISO file when the requested version is not present on the host
-    get_url: url=http://download.virtualbox.org/virtualbox/{{ virtualbox_version }}/VBoxGuestAdditions_{{ virtualbox_version }}.iso dest=/root/VBoxGuestAdditions.iso
+    get_url:
+      url: http://download.virtualbox.org/virtualbox/{{ virtualbox_version }}/VBoxGuestAdditions_{{ virtualbox_version }}.iso
+      dest: /root/VBoxGuestAdditions.iso
     ignore_errors: yes
     when: not file_path.stat.exists and not CD_path.stat.exists
 
