@@ -6,70 +6,70 @@ galaxy_info:
   license: GPLv3
   min_ansible_version: 2.1
   platforms:
-  - name: EL
-    versions:
-    - all
-  #  - 5
-  #  - 6
-  #  - 7
-  - name: GenericUNIX
-    versions:
-    - all
-   # - any
-  - name: Fedora
-    versions:
-    - all
-  #  - 16
-  #  - 17
-  #  - 18
-  #  - 19
-  #  - 20
-  #  - 21
-  #  - 22
-  #- name: Windows
-  #  versions:
-  #  - all
-  #  - 2012R2
-  #- name: SmartOS
-  #  versions:
-  #  - all
-  #  - any
-  #- name: opensuse
-  #  versions:
-  #  - all
-  #  - 12.1
-  #  - 12.2
-  #  - 12.3
-  #  - 13.1
-  #  - 13.2
-  #- name: Amazon
-  #  versions:
-  #  - all
-  #  - 2013.03
-  #  - 2013.09
-  #- name: GenericBSD
-  #  versions:
-  #  - all
-  #  - any
-  #- name: FreeBSD
-  #  versions:
-  #  - all
-  #  - 8.0
-  #  - 8.1
-  #  - 8.2
-  #  - 8.3
-  #  - 8.4
-  #  - 9.0
-  #  - 9.1
-  #  - 9.1
-  #  - 9.2
-  - name: Ubuntu
-    versions:
-    - all
-  #  - lucid
-  #  - maverick
-  #  - natty
-  #  - oneiric
+    - name: EL
+      versions:
+        - all
+    #  - 5
+    #  - 6
+    #  - 7
+    - name: GenericUNIX
+      versions:
+        - all
+      # - any
+    - name: Fedora
+      versions:
+        - all
+    #  - 16
+    #  - 17
+    #  - 18
+    #  - 19
+    #  - 20
+    #  - 21
+    #  - 22
+    #- name: Windows
+    #  versions:
+    #  - all
+    #  - 2012R2
+    #- name: SmartOS
+    #  versions:
+    #  - all
+    #  - any
+    #- name: opensuse
+    #  versions:
+    #  - all
+    #  - 12.1
+    #  - 12.2
+    #  - 12.3
+    #  - 13.1
+    #  - 13.2
+    #- name: Amazon
+    #  versions:
+    #  - all
+    #  - 2013.03
+    #  - 2013.09
+    #- name: GenericBSD
+    #  versions:
+    #  - all
+    #  - any
+    #- name: FreeBSD
+    #  versions:
+    #  - all
+    #  - 8.0
+    #  - 8.1
+    #  - 8.2
+    #  - 8.3
+    #  - 8.4
+    #  - 9.0
+    #  - 9.1
+    #  - 9.1
+    #  - 9.2
+    - name: Ubuntu
+      versions:
+        - all
+    #  - lucid
+    #  - maverick
+    #  - natty
+    #  - oneiric
     # - precise
     # - quantal
     # - raring
@@ -77,15 +77,15 @@ galaxy_info:
     # - trusty
     # - utopic
     # - vivid
-  - name: Debian
-    versions:
-  #  - all
-  #  - etch
-    - jessie
-    - lenny
-    - squeeze
-    - stretch
-    - wheezy
+    - name: Debian
+      versions:
+        #  - all
+        #  - etch
+        - jessie
+        - lenny
+        - squeeze
+        - stretch
+        - wheezy
   galaxy_tags:
     - development
     - guest
