@@ -7,7 +7,6 @@
   when: virtualbox_remove_os_packages is defined and virtualbox_remove_os_packages
 
 - block:
-
     - name: Determine the host version
       shell: "VBoxManage --version | awk -F'[r_]' '{print $1}'"
       delegate_to: localhost
@@ -32,7 +31,6 @@
   ignore_errors: yes
 
 - block:
-
     - name: Check if the ISO file is present on the host
       stat: path="{{ virtualbox_iso }}"
       ##stat: path=/root/VBoxGuestAdditions.iso
@@ -103,7 +101,6 @@
 
     - name: Save the current list of packages for Debians
       block:
-
         - name: Query current list
           shell: dpkg-query -l > /tmp/before.txt
           when: virtualbox_keep is undefined or not virtualbox_keep
@@ -121,7 +118,6 @@
 
     - name: Save the current list of packages for CentOSes
       block:
-
         - name: Save the current list of packages for CentOSes
           shell: rpm -qa > /tmp/before.txt
           when: virtualbox_keep is undefined or not virtualbox_keep
@@ -154,7 +150,6 @@
         # install-recommends=no
         state: present
 
-
     - name: Build and install x11 VBoxGuestAdditions from file
       shell: /media/cdrom/VBoxLinuxAdditions.run
       when: virtualbox_x11 is defined and virtualbox_x11
@@ -179,7 +174,6 @@
       when: mounted_ISO is changed
 
     - block:
-
         - name: Check which packages were installed for Debians
           shell: dpkg-query -l > /tmp/after.txt
           when: ansible_os_family == "Debian"

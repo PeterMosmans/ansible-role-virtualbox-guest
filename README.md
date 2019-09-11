@@ -1,31 +1,27 @@
-Ansible Role: virtualbox-guest
-=====================
+# Ansible Role: virtualbox-guest
 
 Build status for this role: [![Build
 Status](https://travis-ci.org/PeterMosmans/ansible-role-virtualbox-guest.svg)](https://travis-ci.org/PeterMosmans/ansible-role-virtualbox-guest)
-
 
 This role builds, installs and configures the requested VirtualBox guest
 additions. It searches the guest for a mounted ISO containing the
 VBoxGuestAdditions, or an ISO file. When not found, it can download the
 necessary ISO file directly from `download.virtualbox.org`.
 
-Requirements
-------------
+## Requirements
 
 None, all prerequisites will be installed (and can be removed afterwards). If
 you don't set the **virtualbox_keep** variable to true, all packages that were
 installed for building will be removed (the installed packages will be exactly
 the same as before executing the role).
-  - bzip2
-  - dkms
-  - gcc
-  - make
-  - linux-headers
 
+- bzip2
+- dkms
+- gcc
+- make
+- linux-headers
 
-Role Variables
---------------
+## Role Variables
 
 Available variables are listed below, along with default values
 
@@ -41,6 +37,7 @@ previously installed VirtualBox packages. If not specified, defaults to no.
 version does not match that version, it will try to (re)install VirtualBox guest
 additions. If set to `auto`, it will try to determine the VirtualBox version of
 the host system. The defaults can be found in `defaults/main.yml`.
+
 ```
 virtualbox_version: auto
 ```
@@ -48,17 +45,12 @@ virtualbox_version: auto
 **virtualbox_x11**: A boolean stating whether VirtualBox guest additions will be
 compiled with x11 support. If not specified, defaults to no.
 
-
-
-Dependencies
-------------
+## Dependencies
 
 None.
 
+## Example Playbook
 
-
-Example Playbook
-----------------
 ```
 - hosts: all
   become: yes
@@ -70,15 +62,11 @@ Example Playbook
 This example will install VirtualBox guest additions, and will **not** keep the
 build packages to the system if they are needed to install them.
 
-
-License
--------
+## License
 
 GPLv3
 
-
-Author Information
-------------------
+## Author Information
 
 Created by Peter Mosmans.
 
