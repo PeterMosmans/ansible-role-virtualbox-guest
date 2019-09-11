@@ -1,23 +1,28 @@
 ---
 # tasks file for virtualbox-guest
-- name: Remove os packages version of virtualbox guest additions
-  package: name="{{ item }}" state="absent" purge="yes"
-  with_items: "{{ virtualbox_os_packages }}"
+- name: Remove OS installation of virtualbox guest additions
+  package:
+    name: "{{ virtualbox_os_packages }}"
+    state: absent
   when: virtualbox_remove_os_packages is defined and virtualbox_remove_os_packages
 
 - block:
-    - name: If virtualbox_version is set to auto then determine the host version
+
+    - name: Determine the host version
       shell: "VBoxManage --version | awk -F'[r_]' '{print $1}'"
       delegate_to: localhost
       register: host_vbox_version
       become: no
 
     - name: Check if virtualbox_version could be determined
-      fail: msg="Could not determine virtualbox_version - please specify this variable"
+      fail:
+        msg: "Could not determine virtualbox_version - please specify this variable"
       when: not host_vbox_version.stdout
 
     - name: Override virtualbox_version if defaults set to auto
-      set_fact: virtualbox_version="{{ host_vbox_version.stdout }}"
+      set_fact:
+        virtualbox_version: "{{ host_vbox_version.stdout }}"
+
   when: virtualbox_version == "auto"
 
 - name: Determine if (the requested version of) vboxguestadditions is installed
@@ -27,6 +32,7 @@
   ignore_errors: yes
 
 - block:
+
     - name: Check if the ISO file is present on the host
       stat: path="{{ virtualbox_iso }}"
       ##stat: path=/root/VBoxGuestAdditions.iso
@@ -70,16 +76,19 @@
       changed_when: mount_path is defined and not mount_path.stdout
 
     - name: Mount VBoxGuestAdditions
-      mount: name=/media/cdrom
-        src={{ ISO_path }}
-        fstype=iso9660
-        opts=noauto
-        state=mounted
+      mount:
+        name: /media/cdrom
+        src: "{{ ISO_path }}"
+        fstype: iso9660
+        opts: noauto
+        state: mounted
       register: mounted_ISO
       when: mount_path is defined and not mount_path.stdout
 
     - name: Check if VBoxGuest additions ISO is mounted
       shell: mount -l 2>/dev/null|awk 'tolower($0) ~ /vbox.*additions/{print $3}'
+      args:
+        warn: False
       register: mount_path
 
     - name: Find out kernel version
@@ -94,22 +103,25 @@
 
     - name: Save the current list of packages for Debians
       block:
-        - name:
+
+        - name: Query current list
           shell: dpkg-query -l > /tmp/before.txt
           when: virtualbox_keep is undefined or not virtualbox_keep
 
-        - name: Install kernel headers for Debians
-          apt: name=linux-headers-{{ kernel.stdout }}
-            update_cache=yes
-            cache_valid_time=86400
-            install-recommends=no
-            state=present
+        - name: Install kernel headers for Debian
+          apt:
+            name: linux-headers-{{ kernel.stdout }}
+            update_cache: yes
+            cache_valid_time: 86400
+            install-recommends: no
+            state: present
           when: kernel is defined and kernel.stdout is defined
 
-      when: ansible_os_family == 'Debian'
+      when: ansible_os_family == "Debian"
 
     - name: Save the current list of packages for CentOSes
       block:
+
         - name: Save the current list of packages for CentOSes
           shell: rpm -qa > /tmp/before.txt
           when: virtualbox_keep is undefined or not virtualbox_keep
@@ -133,7 +145,7 @@
             warn: no
           when: kernel is defined and kernel.stdout is defined
 
-      when: ansible_os_family == 'RedHat'
+      when: ansible_os_family == "RedHat"
 
     - name: Install necessary packages for compiling
       package:
@@ -142,18 +154,6 @@
         # install-recommends=no
         state: present
 
-    - name: Check which packages were installed for Debians
-      shell: dpkg-query -l > /tmp/after.txt
-      when: ansible_os_family == 'Debian' and ( virtualbox_keep is undefined or not virtualbox_keep )
-
-    - name: Check which packages were installed for CentOSes
-      shell: rpm -qa > /tmp/after.txt
-      when: ansible_os_family == 'RedHat' and ( virtualbox_keep is undefined or not virtualbox_keep )
-
-    - name: Create a list of installed packages
-      shell: diff /tmp/before.txt /tmp/after.txt|awk '/>/{print $3}'
-      register: installed
-      when: virtualbox_keep is undefined or not virtualbox_keep
 
     - name: Build and install x11 VBoxGuestAdditions from file
       shell: /media/cdrom/VBoxLinuxAdditions.run
@@ -171,24 +171,39 @@
       ignore_errors: yes
 
     - name: Unmount VBoxGuestAdditions
-      mount: name={{ mount_path.stdout }}
-        src={{ ISO_path }}
-        fstype=iso9660
-        state=unmounted
+      mount:
+        name: "{{ mount_path.stdout }}"
+        src: "{{ ISO_path }}"
+        fstype: iso9660
+        state: unmounted
       when: mounted_ISO is changed
 
-    - name: Remove installed packages for compiling
-      package:
-        name: "{{ installed.stdout_lines }}"
-        state: absent
-        #update_cache=yes
-        #cache_valid_time=86400
-        #autoremove=yes
-        #purge=yes
-      when: installed is defined and (virtualbox_keep is undefined or not virtualbox_keep)
+    - block:
 
-    - name: Remove build logfiles, artefacts, the source and the ISO file
-      file: name={{ item }} follow=yes state=absent
+        - name: Check which packages were installed for Debians
+          shell: dpkg-query -l > /tmp/after.txt
+          when: ansible_os_family == "Debian"
+
+        - name: Check which packages were installed for CentOSes
+          shell: rpm -qa > /tmp/after.txt
+          when: ansible_os_family == "RedHat"
+
+        - name: Create a list of packages that were installed for compilation
+          shell: diff /tmp/before.txt /tmp/after.txt|awk '/>/{print $3}'
+          register: installed
+
+        - name: Remove packages that were installed for compilation
+          package:
+            name: "{{ installed.stdout_lines }}"
+            state: absent
+
+      when: virtualbox_keep is undefined or not virtualbox_keep
+
+    - name: Remove build logfiles, artefacts, and the ISO file
+      file:
+        name: "{{ item }}"
+        follow: yes
+        state: absent
       with_items:
         - "/opt/VBoxGuestAdditions-{{ virtualbox_version }}/src"
         - /root/VBoxGuestAdditions.iso
@@ -209,4 +224,5 @@
         line='{{ ISO_path }}	{{ mount_path.stdout }}	iso9660	noauto	0	0'
         state=absent
       when: mounted_ISO is changed
+
   when: (vbox_guest_version.stdout != virtualbox_version)
