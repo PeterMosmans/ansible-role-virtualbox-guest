@@ -88,15 +88,20 @@
         warn: False
       register: mount_path
 
-    - name: Find out kernel version
-      shell: uname -r
+    # - name: Find out kernel version
+    #   shell: uname -r
+    #   register: kernel
+    #   changed_when: not kernel.stdout
+
+    # - name: Find out architecture-independent kernel name
+    #   shell: uname -r | sed 's/-[a-z].*$//'
+    #   register: kernel_common
+    #   changed_when: not kernel_common.stdout
+
+    - name: Find out architecture
+      shell: uname -r | cut -d'-' -f3
       register: kernel
       changed_when: not kernel.stdout
-
-    - name: Find out architecture-independent kernel name
-      shell: uname -r | sed 's/-[a-z].*$//'
-      register: kernel_common
-      changed_when: not kernel_common.stdout
 
     - name: Save the current list of packages for Debians
       block:
