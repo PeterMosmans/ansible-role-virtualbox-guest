@@ -1,0 +1,30 @@
+---
+
+dependency:
+  name: galaxy
+driver:
+  name: docker
+lint:
+  name: yamllint
+  options:
+    config-file: molecule/default/yamllint.yml
+platforms:
+  - name: ${MOLECULE_PLATFORM:-debian}
+    image: ${MOLECULE_PLATFORM:-debian}:${MOLECULE_IMAGE:-buster-slim}
+    command: ${MOLECULE_COMMAND:-""}
+    privileged: True  # systemd requirement
+    volumes:
+      - "/sys/fs/cgroup:/sys/fs/cgroup:ro"  # systemd requirement
+    devices:
+      - "/dev/loop0:/dev/loop0"  # mounting ISO requirement
+provisioner:
+  name: ansible
+  log: True
+  options:
+    verbose: True
+  lint:
+    name: ansible-lint
+verifier:
+  name: testinfra
+  lint:
+    name: flake8

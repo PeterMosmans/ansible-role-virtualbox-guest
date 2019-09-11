@@ -1,0 +1,8 @@
+---
+- name: Converge
+  hosts: all
+  roles:
+    - role: ansible-role-virtualbox-guest
+  vars:
+    - virtualbox_keep: True
+    - virtualbox_version: 6.0.10
