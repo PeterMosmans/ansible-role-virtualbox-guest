@@ -10,8 +10,7 @@ lint:
     config-file: molecule/default/yamllint.yml
 platforms:
   - name: ${MOLECULE_PLATFORM:-debian}
-    image: ${MOLECULE_PLATFORM:-debian}:${MOLECULE_IMAGE:-buster-slim}
-    command: ${MOLECULE_COMMAND:-""}
+    image: "${MOLECULE_PLATFORM:-debian}:${MOLECULE_IMAGE:-buster-slim}"
     privileged: True  # systemd requirement
     volumes:
       - "/sys/fs/cgroup:/sys/fs/cgroup:ro"  # systemd requirement
