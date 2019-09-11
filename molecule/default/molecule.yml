@@ -24,6 +24,10 @@ provisioner:
     verbose: True
   lint:
     name: ansible-lint
+    options:
+      x:
+        - 203
+        - 305
 verifier:
   name: testinfra
   lint:
