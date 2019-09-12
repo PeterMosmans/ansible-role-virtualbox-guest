@@ -93,15 +93,15 @@
     #   register: kernel
     #   changed_when: not kernel.stdout
 
-    # - name: Find out architecture-independent kernel name
-    #   shell: uname -r | sed 's/-[a-z].*$//'
-    #   register: kernel_common
-    #   changed_when: not kernel_common.stdout
-
-    - name: Find out architecture
-      shell: uname -r | cut -d'-' -f3
+    - name: Find out architecture-independent kernel name
+      shell: uname -r | sed 's/-[a-z].*$//'
       register: kernel
       changed_when: not kernel.stdout
+
+    # - name: Find out architecture
+    #   shell: uname -r | cut -d'-' -f3
+    #   register: kernel
+    #   changed_when: not kernel.stdout
 
     - name: Save the current list of packages for Debians
       block:
@@ -114,6 +114,14 @@
             name: linux-headers-{{ kernel.stdout }}
             update_cache: yes
             cache_valid_time: 86400
+            install-recommends: no
+            state: present
+          ignore_errors: yes
+          when: kernel is defined and kernel.stdout is defined
+
+        - name: Install generic kernel headers for Debian
+          apt:
+            name: linux-headers-generic
             install-recommends: no
             state: present
           when: kernel is defined and kernel.stdout is defined
@@ -142,7 +150,6 @@
               ["kernel", "kernel-headers-{{ kernel.stdout }}", "kernel-devel"]
             state: latest  # needed latest for dmks to find matching header
             update_cache: yes
-            warn: no
           when: kernel is defined and kernel.stdout is defined
 
       when: ansible_os_family == "RedHat"
@@ -150,8 +157,6 @@
     - name: Install necessary packages for compiling
       package:
         name: ["bzip2", "dkms", "gcc", "make"]
-        # update_cache=yes
-        # install-recommends=no
         state: present
 
     - name: Build and install x11 VBoxGuestAdditions from file
@@ -159,14 +164,9 @@
       when: virtualbox_x11 is defined and virtualbox_x11
       ignore_errors: yes
 
-    - name: Build and install VBoxGuestAdditions from file for Debians
+    - name: Build and install VBoxGuestAdditions from file
       shell: /media/cdrom/VBoxLinuxAdditions.run --nox11
-      when: ( virtualbox_x11 is undefined or not virtualbox_x11 ) and ansible_os_family == 'Debian'
-      ignore_errors: yes
-
-    - name: Build and install VBoxGuestAdditions from file for CentOSes
-      shell: /media/cdrom/VBoxLinuxAdditions.run --nox11
-      when: ( virtualbox_x11 is undefined or not virtualbox_x11 ) and ansible_os_family == 'RedHat'
+      when: virtualbox_x11 is undefined or not virtualbox_x11
       ignore_errors: yes
 
     - name: Unmount VBoxGuestAdditions
