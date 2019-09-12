@@ -9,8 +9,23 @@ lint:
   options:
     config-file: molecule/default/yamllint.yml
 platforms:
-  - name: ${MOLECULE_PLATFORM:-debian}
-    image: "${MOLECULE_PLATFORM:-debian}:${MOLECULE_IMAGE:-buster-slim}"
+  - name: centos7
+    image: centos:centos7
+    privileged: True  # systemd requirement
+    # command: "/lib/systemd"
+    volumes:
+      - "/sys/fs/cgroup:/sys/fs/cgroup:ro"  # systemd requirement
+    devices:
+      - "/dev/loop0:/dev/loop0"  # mounting ISO requirement
+  - name: ubuntu18
+    image: ubuntu:18.04
+    privileged: True  # systemd requirement
+    volumes:
+      - "/sys/fs/cgroup:/sys/fs/cgroup:ro"  # systemd requirement
+    devices:
+      - "/dev/loop0:/dev/loop0"  # mounting ISO requirement
+  - name: debian10
+    image: debian:10-slim
     privileged: True  # systemd requirement
     volumes:
       - "/sys/fs/cgroup:/sys/fs/cgroup:ro"  # systemd requirement
