@@ -121,7 +121,7 @@
 
         - name: Install generic kernel headers for Debian
           apt:
-            name: "linux-headers-{{ kernel_architecture }}"
+            name: "linux-headers-{{ kernel_architecture.stdout }}"
             install-recommends: no
             update_cache: yes
             cache_valid_time: 86400
