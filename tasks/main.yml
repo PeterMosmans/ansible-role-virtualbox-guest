@@ -98,10 +98,10 @@
     #   register: kernel
     #   changed_when: not kernel.stdout
 
-    # - name: Find out architecture
-    #   shell: uname -r | cut -d'-' -f3
-    #   register: kernel
-    #   changed_when: not kernel.stdout
+    - name: Find out architecture
+      shell: uname -r | cut -d'-' -f3
+      register: kernel_architecture
+      changed_when: not kernel_architecture.stdout
 
     - name: Save the current list of packages for Debians
       block:
@@ -121,7 +121,7 @@
 
         - name: Install generic kernel headers for Debian
           apt:
-            name: linux-headers-generic
+            name: "linux-headers-{{ kernel_architecture }}"
             install-recommends: no
             update_cache: yes
             cache_valid_time: 86400
