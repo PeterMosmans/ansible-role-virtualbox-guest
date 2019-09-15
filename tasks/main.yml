@@ -93,10 +93,10 @@
     #   register: kernel
     #   changed_when: not kernel.stdout
 
-    - name: Find out architecture-independent kernel name
-      shell: uname -r | sed 's/-[a-z].*$//'
-      register: kernel
-      changed_when: not kernel.stdout
+    # - name: Find out architecture-independent kernel name
+    #   shell: uname -r | sed 's/-[a-z].*$//'
+    #   register: kernel
+    #   changed_when: not kernel.stdout
 
     # - name: Find out architecture
     #   shell: uname -r | cut -d'-' -f3
@@ -109,20 +109,23 @@
           shell: dpkg-query -l > /tmp/before.txt
           when: virtualbox_keep is undefined or not virtualbox_keep
 
-        - name: Install kernel headers for Debian
-          apt:
-            name: linux-headers-{{ kernel.stdout }}
-            update_cache: yes
-            cache_valid_time: 86400
-            install-recommends: no
-            state: present
-          ignore_errors: yes
-          when: kernel is defined and kernel.stdout is defined
+#         - name: Install kernel headers for Debian
+#           apt:
+# #          name: linux-headers-{{ kernel.stdout }}
+#             name: linux-headers
+#             update_cache: yes
+#             cache_valid_time: 86400
+#             install-recommends: no
+#             state: present
+#           ignore_errors: yes
+#           when: kernel is defined and kernel.stdout is defined
 
         - name: Install generic kernel headers for Debian
           apt:
             name: linux-headers-generic
             install-recommends: no
+            update_cache: yes
+            cache_valid_time: 86400
             state: present
           when: kernel is defined and kernel.stdout is defined
 
@@ -134,20 +137,20 @@
           shell: rpm -qa > /tmp/before.txt
           when: virtualbox_keep is undefined or not virtualbox_keep
 
-        - name: Install EPEL repo.
-          yum:
-            name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm
-            state: present
+        # - name: Install EPEL repo.
+        #   yum:
+        #     name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm
+        #     state: present
 
-        - name: Import EPEL GPG key.
-          rpm_key:
-            key: /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}
-            state: present
+        # - name: Import EPEL GPG key.
+        #   rpm_key:
+        #     key: /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}
+        #     state: present
 
         - name: Install latest kernel and headers for CentOSes
           yum:
             name:
-              ["kernel", "kernel-headers-{{ kernel.stdout }}", "kernel-devel"]
+              ["kernel", "kernel-devel", "kernel-headers"]  #  "kernel-headers-{{ kernel.stdout }}",
             state: latest  # needed latest for dmks to find matching header
             update_cache: yes
           when: kernel is defined and kernel.stdout is defined
@@ -178,15 +181,15 @@
       when: mounted_ISO is changed
 
     - block:
-        - name: Check which packages were installed for Debians
+        - name: Check which packages are now installed for Debians
           shell: dpkg-query -l > /tmp/after.txt
           when: ansible_os_family == "Debian"
 
-        - name: Check which packages were installed for CentOSes
+        - name: Check which packages are now installed for CentOSes
           shell: rpm -qa > /tmp/after.txt
           when: ansible_os_family == "RedHat"
 
-        - name: Create a list of packages that were installed for compilation
+        - name: Create a list of packages that were installed just for compilation
           shell: diff /tmp/before.txt /tmp/after.txt|awk '/>/{print $3}'
           register: installed
 
