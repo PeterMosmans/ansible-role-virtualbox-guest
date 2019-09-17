@@ -75,6 +75,15 @@
             install-recommends: no
             state: present
           ignore_errors: yes
+          # Fails on Debian
+
+        - name: Install generic kernel headers for Ubuntu
+          apt:
+            name: "linux-headers-generic"
+            install-recommends: no
+            state: present
+          ignore_errors: yes
+          when: ansible_distribution == "Ubuntu"
 
       when: ansible_os_family == "Debian"
 
