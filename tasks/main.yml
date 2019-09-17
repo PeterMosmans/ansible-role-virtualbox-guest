@@ -159,7 +159,7 @@
 
     - name: Unmount VBoxGuestAdditions ISO when it was mounted
       mount:
-        path: /media/cdrom
+        path: "{{ virtualbox_iso }}"
         fstype: iso9660
         state: absent
       when: mounted_ISO is changed
