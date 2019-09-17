@@ -54,34 +54,27 @@
         state: mounted
       register: mounted_ISO
 
-    - name: Find out architecture
-      shell: uname -r | cut -d'-' -f3
-      register: kernel_architecture
-      changed_when: not kernel_architecture.stdout
-
     - name: Save the current list of packages for Debians
       block:
         - name: Query current list
           shell: dpkg-query -l > /tmp/before.txt
           when: virtualbox_keep is undefined or not virtualbox_keep
 
-        # - name: Install kernel headers for Debian
-        #   apt:
-        #     name: linux-headers
-        #     update_cache: yes
-        #     cache_valid_time: 86400
-        #     install-recommends: no
-        #     state: present
-        #   ignore_errors: yes
-        #   when: kernel is defined and kernel.stdout is defined
+        - name: Install kernel headers for Debian
+          apt:
+            name: "linux-headers-{{ ansible_kernel }}"
+            update_cache: yes
+            cache_valid_time: 86400
+            install-recommends: no
+            state: present
+          ignore_errors: yes
 
         - name: Install generic kernel headers for Debian
           apt:
-            name: "linux-headers-{{ kernel_architecture.stdout }}"
+            name: "linux-headers-{{ ansible_architecture }}"
             install-recommends: no
-            update_cache: yes
-            cache_valid_time: 86400
             state: present
+          ignore_errors: yes
 
       when: ansible_os_family == "Debian"
 
