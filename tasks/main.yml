@@ -142,7 +142,6 @@
               ["kernel", "kernel-headers-{{ kernel.stdout }}", "kernel-devel"]
             state: latest  # needed latest for dmks to find matching header
             update_cache: yes
-            warn: no
           when: kernel is defined and kernel.stdout is defined
 
       when: ansible_os_family == "RedHat"
