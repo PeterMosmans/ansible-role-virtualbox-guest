@@ -207,7 +207,7 @@
         state: absent
       with_items:
         - "/opt/VBoxGuestAdditions-{{ virtualbox_version }}/src"
-        - /root/VBoxGuestAdditions.iso
+        - "{{ virtualbox_iso }}"
         - /tmp/before.txt
         - /tmp/after.txt
         - "/usr/src/vboxguest-{{ virtualbox_version }}"
