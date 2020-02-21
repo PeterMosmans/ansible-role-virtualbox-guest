@@ -92,16 +92,6 @@
         warn: False
       register: mount_path
 
-    # - name: Find out kernel version
-    #   shell: uname -r
-    #   register: kernel
-    #   changed_when: not kernel.stdout
-
-    # - name: Find out architecture-independent kernel name
-    #   shell: uname -r | sed 's/-[a-z].*$//'
-    #   register: kernel_common
-    #   changed_when: not kernel_common.stdout
-
     - name: Find out architecture
       shell: uname -r | cut -d'-' -f3
       register: kernel
@@ -142,8 +132,7 @@
 
         - name: Install latest kernel and headers for CentOSes
           yum:
-            name:
-              ["kernel", "kernel-headers-{{ kernel.stdout }}", "kernel-devel", "elfutils-libelf-devel"]
+            name: ["kernel", "kernel-headers-{{ kernel.stdout }}", "kernel-devel", "elfutils-libelf-devel"]
             state: latest  # needed latest for dmks to find matching header
             update_cache: yes
           when: kernel is defined and kernel.stdout is defined
@@ -153,8 +142,6 @@
     - name: Install necessary packages for compiling
       package:
         name: ["bzip2", "dkms", "gcc", "make"]
-        # update_cache=yes
-        # install-recommends=no
         state: present
 
     - name: Build and install x11 VBoxGuestAdditions from file
@@ -164,12 +151,12 @@
 
     - name: Build and install VBoxGuestAdditions from file for Debians
       shell: /media/cdrom/VBoxLinuxAdditions.run --nox11
-      when: ( virtualbox_x11 is undefined or not virtualbox_x11 ) and ansible_os_family == 'Debian'
+      when: ( virtualbox_x11 is undefined or not virtualbox_x11 ) and ansible_os_family == "Debian"
       ignore_errors: yes
 
     - name: Build and install VBoxGuestAdditions from file for CentOSes
       shell: /media/cdrom/VBoxLinuxAdditions.run --nox11
-      when: ( virtualbox_x11 is undefined or not virtualbox_x11 ) and ansible_os_family == 'RedHat'
+      when: ( virtualbox_x11 is undefined or not virtualbox_x11 ) and ansible_os_family == "RedHat"
       ignore_errors: yes
 
     - name: Unmount VBoxGuestAdditions
