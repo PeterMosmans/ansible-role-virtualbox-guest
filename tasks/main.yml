@@ -32,7 +32,8 @@
 
 - block:
     - name: Check if the ISO file is present on the host
-      stat: path="{{ virtualbox_iso }}"
+      stat:
+        path: "{{ virtualbox_iso }}"
       register: file_path
       ignore_errors: yes
 
@@ -40,30 +41,33 @@
       stat: path=/dev/sr0
       register: CD_path
       ignore_errors: yes
-      when: not file_path.stat.exists
+      when: file_path.stat.exists is not defined
 
     - name: Check if CD or ISO file is present on the host
-      debug: msg="Could not find necessary CD or ISO file on the host. Attempting to download..."
-      when: not file_path.stat.exists and not CD_path.stat.exists
+      block:
+        - debug:
+            msg: "Could not find necessary CD or ISO file on the host. Attempting to download..."
 
-    - name: Download ISO file when the requested version is not present on the host
-      get_url:
-        url: http://download.virtualbox.org/virtualbox/{{ virtualbox_version }}/VBoxGuestAdditions_{{ virtualbox_version }}.iso
-        dest: /root/VBoxGuestAdditions.iso
-      ignore_errors: yes
-      when: not file_path.stat.exists and not CD_path.stat.exists
+        - name: Download ISO file when the requested version is not present on the host
+          get_url:
+            url: http://download.virtualbox.org/virtualbox/{{ virtualbox_version }}/VBoxGuestAdditions_{{ virtualbox_version }}.iso
+            dest: "{{ virtualbox_iso }}"
 
-    - name: Re-check if the ISO file is present on the host
-      stat: path=/root/VBoxGuestAdditions.iso
-      register: file_path
-      ignore_errors: yes
+        - name: Re-check if the ISO file is present on the host
+          stat:
+            path: "{{ virtualbox_iso }}"
+            register: file_path
 
-    - name: Fail if CD or ISO file is still not present on the host
-      fail: msg="Could not find necessary CD or ISO file on the host."
-      when: not file_path.stat.exists and not CD_path.stat.exists
+        - name: Fail if CD or ISO file is still not present on the host
+          fail:
+            msg: "Could not find necessary CD or ISO file on the host, nor download it"
+          when: file_path.stat.exists is not defined
+
+      when: file_path.stat.exists is not defined and CD_path.stat.exists is not defined
 
     - name: Use correct ISO path (file or CD)
-      set_fact: ISO_path="{{ file_path.stat.path if file_path.stat.exists else CD_path.stat.path }}"
+      set_fact:
+        ISO_path: "{{ file_path.stat.path if file_path.stat.exists else CD_path.stat.path }}"
 
     - name: Check if VBoxGuest additions ISO is mounted
       shell: mount -l 2>/dev/null|awk '/VBOXADDITIONS/{print $3}'
@@ -87,16 +91,6 @@
       args:
         warn: False
       register: mount_path
-
-    # - name: Find out kernel version
-    #   shell: uname -r
-    #   register: kernel
-    #   changed_when: not kernel.stdout
-
-    # - name: Find out architecture-independent kernel name
-    #   shell: uname -r | sed 's/-[a-z].*$//'
-    #   register: kernel_common
-    #   changed_when: not kernel_common.stdout
 
     - name: Find out architecture
       shell: uname -r | cut -d'-' -f3
@@ -138,8 +132,7 @@
 
         - name: Install latest kernel and headers for CentOSes
           yum:
-            name:
-              ["kernel", "kernel-headers-{{ kernel.stdout }}", "kernel-devel", "elfutils-libelf-devel"]
+            name: ["kernel", "kernel-headers-{{ kernel.stdout }}", "kernel-devel", "elfutils-libelf-devel"]
             state: latest  # needed latest for dmks to find matching header
             update_cache: yes
           when: kernel is defined and kernel.stdout is defined
@@ -165,12 +158,12 @@
 
     - name: Build and install VBoxGuestAdditions from file for Debians
       shell: /media/cdrom/VBoxLinuxAdditions.run --nox11
-      when: ( virtualbox_x11 is undefined or not virtualbox_x11 ) and ansible_os_family == 'Debian'
+      when: ( virtualbox_x11 is undefined or not virtualbox_x11 ) and ansible_os_family == "Debian"
       ignore_errors: yes
 
     - name: Build and install VBoxGuestAdditions from file for CentOSes
       shell: /media/cdrom/VBoxLinuxAdditions.run --nox11
-      when: ( virtualbox_x11 is undefined or not virtualbox_x11 ) and ansible_os_family == 'RedHat'
+      when: ( virtualbox_x11 is undefined or not virtualbox_x11 ) and ansible_os_family == "RedHat"
       ignore_errors: yes
 
     - name: Unmount VBoxGuestAdditions
@@ -208,7 +201,7 @@
         state: absent
       with_items:
         - "/opt/VBoxGuestAdditions-{{ virtualbox_version }}/src"
-        - /root/VBoxGuestAdditions.iso
+        - "{{ virtualbox_iso }}"
         - /tmp/before.txt
         - /tmp/after.txt
         - "/usr/src/vboxguest-{{ virtualbox_version }}"
