@@ -148,7 +148,7 @@
 
     - name: Install necessary packages for compiling
       package:
-        name: ["bzip2", "dkms", "gcc", "make"]
+        name: ["bzip2", "dkms", "gcc", "make", "perl"]
         # update_cache=yes
         # install-recommends=no
         state: present
