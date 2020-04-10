@@ -4,7 +4,7 @@
 # https://aka.ms/yaml
 
 trigger:
-- master
+  - "*"
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -14,6 +14,6 @@ steps:
   displayName: 'Run a one-line script'
 
 - script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
+    python -V
+    pip3 install ansible-lint
   displayName: 'Run a multi-line script'
