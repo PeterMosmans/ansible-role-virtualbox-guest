@@ -1,5 +1,6 @@
 ---
 # defaults file for virtualbox-guest
+local_virtualbox_iso: /usr/share/virtualbox/VBoxGuestAdditions.iso
 virtualbox_iso: /root/VBoxGuestAdditions.iso
 virtualbox_os_packages:
   - virtualbox-guest-additions-iso
