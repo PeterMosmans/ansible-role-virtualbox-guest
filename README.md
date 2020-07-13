@@ -31,9 +31,10 @@ compiling should be kept on the system. If not specified, defaults to no.
 **virtualbox_iso**: The location on the guest where the ISO is expected. Note
 that this file will be removed after successful compiling.
 
-**local_virtualbox_iso**: Location on the host where the ISO is located.
-On linux, it is located under 
-`/usr/share/virtualbox/VBoxGuestAdditions.iso`.
+**local_virtualbox_iso**: Location on the host where the ISO is located. On
+linux, it is located under `/usr/share/virtualbox/VBoxGuestAdditions.iso`. If
+this variable is set, the role will copy the ISO file from the host to the
+guest.
 
 **virtualbox_remove_os_packages**: A boolean stating whether to remove any
 previously installed VirtualBox packages. If not specified, defaults to no.
