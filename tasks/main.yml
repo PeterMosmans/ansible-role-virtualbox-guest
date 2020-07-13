@@ -206,7 +206,7 @@
         name: "{{ item }}"
         follow: yes
         state: absent
-      with_items:
+      loop:
         - "/opt/VBoxGuestAdditions-{{ virtualbox_version }}/src"
         - "{{ virtualbox_iso }}"
         - /tmp/before.txt
