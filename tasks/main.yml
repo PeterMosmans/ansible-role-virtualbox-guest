@@ -151,13 +151,11 @@
     - name: Install necessary packages for compiling
       package:
         name: ["bzip2", "dkms", "gcc", "make"]
-        # update_cache=yes
-        # install-recommends=no
         state: present
 
     - name: Uninstall previous VBoxGuestAdditions
       shell: echo "yes" | /media/cdrom/VBoxLinuxAdditions.run uninstall
-      when: vbox_guest_version.stdout is defined 
+      when: vbox_guest_version.stdout is defined
       ignore_errors: yes
 
     - name: Build and install x11 VBoxGuestAdditions from file
