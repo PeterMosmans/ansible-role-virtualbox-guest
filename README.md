@@ -76,4 +76,4 @@ GPLv3
 
 Created by Peter Mosmans.
 
-Contributions by Isaac Kim, Fred Leger and many others: see [https://github.com/PeterMosmans/ansible-role-virtualbox-guest/graphs/contributors]
+Contributions are more than welcome! Thanks to all contributors so far: see [https://github.com/PeterMosmans/ansible-role-virtualbox-guest/graphs/contributors]
