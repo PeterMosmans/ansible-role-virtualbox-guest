@@ -31,13 +31,13 @@
   ignore_errors: yes
 
 - block:
-    - name: "Copy guest in host"
+    - name: "Copy ISO file from guest to host"
       copy:
         src: "{{ local_virtualbox_iso }}"
         dest: "{{ virtualbox_iso }}"
         owner: root
         group: root
-        mode: '0644'
+        mode: "0644"
       when: local_virtualbox_iso is defined and virtualbox_iso is defined
 
     - name: Check if the ISO file is present on the host
