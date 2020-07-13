@@ -1,6 +1,13 @@
 # Changelog
 
 
+### [1.8.3](https://github.com/PeterMosmans/ansible-role-virtualbox-guest/compare/v1.8.2...v1.8.3) (2020-07-13)
+
+
+### Bug Fixes
+
+* remove commented code and whitespace ([dfc512f](https://github.com/PeterMosmans/ansible-role-virtualbox-guest/commit/dfc512fc697ebbf9fee4e7080ca7f26129a17e1e))
+
 ### 1.8.2 (2020-03-05)
 
 
