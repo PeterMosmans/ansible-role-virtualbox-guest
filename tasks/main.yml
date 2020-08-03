@@ -191,7 +191,7 @@
           when: ansible_os_family == "RedHat"
 
         - name: Create a list of packages that were installed for compilation
-          shell: diff /tmp/before.txt /tmp/after.txt|awk '/>/{print $3}'
+          shell: diff --ignore-all-space /tmp/before.txt /tmp/after.txt|awk '/>/{print $3}'
           register: installed
 
         - name: Remove packages that were installed for compilation
