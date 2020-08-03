@@ -1,6 +1,13 @@
 # Changelog
 
 
+### [1.8.4](https://github.com/PeterMosmans/ansible-role-virtualbox-guest/compare/v1.8.3...v1.8.4) (2020-08-03)
+
+
+### Bug Fixes
+
+* ensure that comparison of newly installed packages is correct ([8406900](https://github.com/PeterMosmans/ansible-role-virtualbox-guest/commit/8406900c1a378f1d03415ef160953cd95eb87615))
+
 ### [1.8.3](https://github.com/PeterMosmans/ansible-role-virtualbox-guest/compare/v1.8.2...v1.8.3) (2020-07-13)
 
 
