@@ -8,6 +8,8 @@ additions. It searches the guest for a mounted ISO containing the
 VBoxGuestAdditions, or an ISO file. When not found, it can download the
 necessary ISO file directly from `download.virtualbox.org`.
 
+Installation may require a reboot.
+
 ## Requirements
 
 None, all prerequisites will be installed (and can be removed afterwards). If
@@ -50,6 +52,11 @@ virtualbox_version: auto
 
 **virtualbox_x11**: A boolean stating whether VirtualBox guest additions will be
 compiled with x11 support. If not specified, defaults to no.
+
+**virtualbox_use_latest_kernel**: A boolean stating whether latest kernel must be
+installed. If set to false, installation may fail due to kernel headers missing.
+This is a common situation for Centos. If set to true, kernel will always be
+updated to latest **and VM rebooted** if kernel version changed. Default is false.
 
 ## Dependencies
 

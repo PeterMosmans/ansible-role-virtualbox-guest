@@ -9,3 +9,4 @@ virtualbox_os_packages:
   - virtualbox-guest-x11
 virtualbox_remove_os_packages: false
 virtualbox_version: auto
+virtualbox_use_latest_kernel: false
