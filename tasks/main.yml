@@ -197,12 +197,27 @@
     - name: Build and install x11 VBoxGuestAdditions from file
       shell: /media/cdrom/VBoxLinuxAdditions.run
       when: virtualbox_x11 is defined and virtualbox_x11
-      ignore_errors: yes
+      register: install_result
+      failed_when: install_result.rc != 0 and install_result.rc != 2
 
     - name: Build and install VBoxGuestAdditions from file
       shell: /media/cdrom/VBoxLinuxAdditions.run --nox11
       when: virtualbox_x11 is undefined or not virtualbox_x11
-      ignore_errors: yes
+      register: install_result
+      failed_when: install_result.rc != 0 and install_result.rc != 2
+
+    # VBoxLinuxAdditions.run returns status 2 when there was already running
+    # modules, and installer can't unload them (reboot required).
+    # Unfortunately, checksum errors return the same status 2.
+    # So, we also check if kernel module is actually built.
+
+    - name: Check if vboxguest.ko for running kernel is present
+      stat:
+        path: "/lib/modules/{{ kernel_version.stdout }}/misc/vboxguest.ko"
+        get_checksum: false
+        get_attributes: false
+      register: vboxguest_ko_path
+      failed_when: not vboxguest_ko_path.stat
 
     - name: Unmount VBoxGuestAdditions
       mount:
@@ -213,13 +228,8 @@
       when: mounted_ISO is changed
 
     - block:
-        - name: Check which packages were installed for Debians
-          shell: dpkg-query -l > /tmp/after.txt
-          when: ansible_os_family == "Debian"
-
-        - name: Check which packages were installed for CentOSes
-          shell: rpm -qa > /tmp/after.txt
-          when: ansible_os_family == "RedHat"
+        - name: Check which packages were installed
+          shell: "{{ package_list_command }} > /tmp/after.txt"
 
         - name: Create a list of packages that were installed for compilation
           shell: diff --ignore-all-space /tmp/before.txt /tmp/after.txt|awk '/>/{print $3}'
@@ -257,5 +267,10 @@
         line='{{ ISO_path }}	{{ mount_path.stdout }}	iso9660	noauto	0	0'
         state=absent
       when: mounted_ISO is changed
+
+    - name: Reboot to replace running modules
+      reboot:
+      when: install_result.rc == 2
+
 
   when: (vbox_guest_version.stdout != virtualbox_version)
