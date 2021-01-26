@@ -101,11 +101,6 @@
         warn: False
       register: mount_path
 
-    - name: Find out architecture
-      shell: uname -r | cut -d'-' -f3
-      register: kernel
-      changed_when: not kernel.stdout
-
     - name: Save the current list of packages for Debians
       block:
         - name: Query current list
@@ -114,12 +109,11 @@
 
         - name: Install kernel headers for Debian
           apt:
-            name: linux-headers-{{ kernel.stdout }}
+            name: linux-headers-{{ ansible_kernel }}
             update_cache: yes
             cache_valid_time: 86400
             install-recommends: no
             state: present
-          when: kernel is defined and kernel.stdout is defined
 
       when: ansible_os_family == "Debian"
 
@@ -141,10 +135,9 @@
 
         - name: Install latest kernel and headers for CentOSes
           yum:
-            name: ["kernel", "kernel-headers-{{ kernel.stdout }}", "kernel-devel", "elfutils-libelf-devel"]
+            name: ["kernel", "kernel-headers-{{ ansible_kernel }}", "kernel-devel", "elfutils-libelf-devel"]
             state: latest  # needed latest for dmks to find matching header
             update_cache: yes
-          when: kernel is defined and kernel.stdout is defined
 
       when: ansible_os_family == "RedHat"
 
