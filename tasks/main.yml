@@ -30,8 +30,9 @@
   changed_when: vbox_guest_version.stdout != virtualbox_version
   ignore_errors: yes
 
-- block:
-    - name: "Copy ISO file from guest to host"
+- name: Ensure that the required ISO file can be found
+  block:
+    - name: Copy ISO file from guest to host
       copy:
         src: "{{ local_virtualbox_iso }}"
         dest: "{{ virtualbox_iso }}"
@@ -47,10 +48,11 @@
       ignore_errors: yes
 
     - name: Check if the CD is present on the host
-      stat: path=/dev/sr0
-      register: CD_path
+      stat:
+        path: "/dev/sr0"
+      register: file_path
       ignore_errors: yes
-      when: file_path.stat.exists is not defined
+      when: file_path.stat is not defined or not file_path.stat.exists
 
     - name: Check if CD or ISO file is present on the host
       block:
@@ -65,18 +67,18 @@
         - name: Re-check if the ISO file is present on the host
           stat:
             path: "{{ virtualbox_iso }}"
-            register: file_path
+          register: file_path
 
         - name: Fail if CD or ISO file is still not present on the host
           fail:
             msg: "Could not find necessary CD or ISO file on the host, nor download it"
-          when: file_path.stat.exists is not defined
+          when: file_path.stat.exists is not defined or not file_path.stat.path
 
-      when: file_path.stat.exists is not defined and CD_path.stat.exists is not defined
+      when: file_path.stat is not defined or not file_path.stat.exists
 
     - name: Use correct ISO path (file or CD)
       set_fact:
-        ISO_path: "{{ file_path.stat.path if file_path.stat.exists else CD_path.stat.path }}"
+        ISO_path: "{{ file_path.stat.path }}"
 
     - name: Check if VBoxGuest additions ISO is mounted
       shell: mount -l 2>/dev/null|awk '/VBOXADDITIONS/{print $3}'
