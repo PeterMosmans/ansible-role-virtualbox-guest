@@ -137,8 +137,14 @@
 
         - name: Install latest kernel and headers for CentOSes
           yum:
-            name: ["kernel", "kernel-headers-{{ ansible_kernel }}", "kernel-devel", "elfutils-libelf-devel"]
-            state: latest  # needed latest for dmks to find matching header
+            name:
+              [
+                "kernel",
+                "kernel-headers-{{ ansible_kernel }}",
+                "kernel-devel",
+                "elfutils-libelf-devel",
+              ]
+            state: latest # needed latest for dmks to find matching header
             update_cache: yes
 
       when: ansible_os_family == "RedHat"
