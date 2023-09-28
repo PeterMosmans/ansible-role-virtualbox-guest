@@ -82,8 +82,6 @@
 
     - name: Check if VBoxGuest additions ISO is mounted
       shell: mount -l 2>/dev/null|awk '/VBOXADDITIONS/{print $3}'
-      args:
-        warn: False
       register: mount_path
       changed_when: mount_path is defined and not mount_path.stdout
 
@@ -99,8 +97,6 @@
 
     - name: Check if VBoxGuest additions ISO is mounted
       shell: mount -l 2>/dev/null|awk 'tolower($0) ~ /vbox.*additions/{print $3}'
-      args:
-        warn: False
       register: mount_path
 
     - name: Save the current list of packages for Debians
